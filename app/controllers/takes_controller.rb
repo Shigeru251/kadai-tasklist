@@ -1,2 +1,0 @@
-class TakesController < ApplicationController
-end
