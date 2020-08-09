@@ -1,10 +1,16 @@
 class TasksController < ApplicationController
+ # before_action :require_user_logged_in,except: [:index]
+ before_action :require_user_logged_in
+  
   def index
-    @tasks = Task.all.page(params[:page]).per(10)
+    
+#   @tasks = Task.all.page(params[:page]).per(10)
+    @tasks = @current_user.tasks.page(params[:page]).per(10)
   end 
   
   def create
-    @task = Task.new(task_params)
+#    @task = Task.new(task_params)
+    @task = @current_user.tasks.build(task_params)
     
     if @task.save
       flash[:success] = 'タスク が正常に登録されました'
@@ -26,12 +32,19 @@ class TasksController < ApplicationController
   end 
   
   def show 
-    @task = Task.find(params[:id])
+#    @task = Task.find(params[:id])
+    @task = @current_user.tasks.find_by(id: params[:id])
+    unless @task
+      session[:user_id] = nil
+
+      redirect_to login_url
+    
+    end
   end 
   
   def update 
-    @task = Task.find(params[:id])
-
+#    @task = Task.find(params[:id])
+    @task = @current_user.tasks.find(params[:id])
 
     if @task.update(task_params)
       flash[:success] = 'タスク は正常に更新されました'
